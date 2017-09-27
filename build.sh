@@ -1,4 +1,8 @@
 #!/bin/bash
+# copy the templates and edit them afterwards
+cp run.sh-template run.sh
+cp Dockerfile-template Dockerfile
+
 # check if curl is available
 curl=$(command -v curl)
 if [[ "$curl" == "" ]]
@@ -33,10 +37,6 @@ then
   echo maybe call the script from the same directory where the Dockerfile is
   exit
 fi
-
-# copy the templates and edit them afterwards
-cp run.sh-template run.sh
-cp Dockerfile-template Dockerfile
 
 # change ip in dockerfile
 ip=$(curl -s https://4.ifcfg.me/)

@@ -74,7 +74,8 @@ RUN apt-get -y update && \
     printf "i2np.bandwidth.outboundKBytesPerSecond=5000\n" >> ${I2P_DIR}/router.config && \
     sed -i 's/i2psnark.dir=.*/i2psnark.dir=\/var\/i2p/g' ${I2P_DIR}/i2psnark.config && \
     printf "i2psnark.filesPublic=true\n" >> ${I2P_DIR}/i2psnark.config && \
-    printf "i2psnark.autoStart=true\n" >> ${I2P_DIR}/i2psnark.config
+    printf "i2psnark.autoStart=true\n" >> ${I2P_DIR}/i2psnark.config && \
+    sed -i 's/wrapper.java.maxmemory=128/wrapper.java.maxmemory=1024/g' /etc/i2p/wrapper.config
 
 VOLUME /var/lib/i2p
 USER i2psvc
