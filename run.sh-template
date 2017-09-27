@@ -1,0 +1,31 @@
+#!/bin/bash
+i2pport=randomport
+
+if [ ! -e ~/.i2p ]
+then
+  mkdir -p ~/.i2p
+  chmod 777 ~/.i2p 2>/dev/null
+fi
+
+# exit and remove old container
+docker stop i2prouter
+docker rm i2prouter
+if [[ "$1" == "stop" ]]
+then
+  exit
+fi
+
+# start new container
+docker run -v ~/.i2p:/var/i2p:rw\
+ -p 0.0.0.0:${i2pport}:${i2pport}\
+ -p 0.0.0.0:${i2pport}:${i2pport}/udp\
+ -p 127.0.0.1:4444:4444\
+ -p 127.0.0.1:7657:7657\
+ --name i2prouter i2p
+# optional
+# -p 127.0.0.1:6668:6668 # IRC proxy
+
+# explanation
+# ${i2pport} connection between i2p nodes
+# 4444  proxy to i2p sites
+# 7657  router control website

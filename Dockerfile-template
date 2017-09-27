@@ -2,6 +2,8 @@ FROM debian:stretch
 
 ENV I2P_DIR /usr/share/i2p
 ENV DEBIAN_FRONTEND noninteractive
+ENV I2P_PORT 1
+ENV EXTERNAL_IP 1
 
 # ports
 # https://geti2p.net/ports
@@ -14,8 +16,10 @@ ENV DEBIAN_FRONTEND noninteractive
 # 7659 - SMTP proxy to smtp.postman.i2p
 # 7660 - POP3 proxy to pop.postman.i2p
 # 8998 - Proxy to mtn.i2p-projekt.i2p
+# randomportnumber - i2p node to node - will be generated whith ./build.sh
 
 EXPOSE 2827 7650 7654 7655 7656 7657 7658 7659 7660 7661 7662 4444 6668 8998
+EXPOSE randomportnumber
 
 # tools
 RUN apt-get -y update && \
@@ -43,13 +47,13 @@ ENV LC_ALL=de_DE.UTF-8
 RUN echo "deb https://deb.i2p2.de/ stretch main" > /etc/apt/sources.list.d/i2p.list && \
     curl -s https://geti2p.net/_static/i2p-debian-repo.key.asc | apt-key add -
 
-# i2p installation
+# i2p installation and configuration
 RUN apt-get -y update && \
     apt-get -y install \
       i2p \
       i2p-keyring && \
-    echo "RUN_AS_USER=i2psvc" >> /etc/default/i2p && \
     apt-get clean && \
+    echo "RUN_AS_USER=i2psvc" >> /etc/default/i2p && \
     rm -rf /var/lib/i2p && \
     mkdir -p /var/lib/i2p/i2p-config && \
     chown -R i2psvc:i2psvc /var/lib/i2p && \
@@ -57,8 +61,20 @@ RUN apt-get -y update && \
     sed -i 's/127\.0\.0\.1/0.0.0.0/g' ${I2P_DIR}/i2ptunnel.config && \
     sed -i 's/::1,127\.0\.0\.1/0.0.0.0/g' ${I2P_DIR}/clients.config && \
     printf "i2cp.tcp.bindAllInterfaces=true\n" >> ${I2P_DIR}/router.config && \
-    printf "i2np.ipv4.firewalled=true\ni2np.ntcp.ipv6=false\n" >> ${I2P_DIR}/router.config && \
-    printf "i2np.udp.ipv6=false\ni2np.upnp.enable=false\n" >> ${I2P_DIR}/router.config
+    printf "i2np.ipv4.firewalled=false\n" >> ${I2P_DIR}/router.config && \
+    printf "i2np.upnp.enable=false\n" >> ${I2P_DIR}/router.config && \
+    printf "i2np.udp.internalPort=${I2P_PORT}\n" >> ${I2P_DIR}/router.config && \
+    printf "i2np.udp.port=${I2P_PORT}\n" >> ${I2P_DIR}/router.config && \
+    printf "i2np.lastIP=${EXTERNAL_IP}\n" >> ${I2P_DIR}/router.config && \
+    printf "i2np.bandwidth.inboundBurstKBytes=110000\n" >> ${I2P_DIR}/router.config && \
+    printf "i2np.bandwidth.inboundBurstKBytesPerSecond=5500\n" >> ${I2P_DIR}/router.config && \
+    printf "i2np.bandwidth.inboundKBytesPerSecond=5000\n" >> ${I2P_DIR}/router.config && \
+    printf "i2np.bandwidth.outboundBurstKBytes=110000\n" >> ${I2P_DIR}/router.config && \
+    printf "i2np.bandwidth.outboundBurstKBytesPerSecond=5500\n" >> ${I2P_DIR}/router.config && \
+    printf "i2np.bandwidth.outboundKBytesPerSecond=5000\n" >> ${I2P_DIR}/router.config && \
+    sed -i 's/i2psnark.dir=.*/i2psnark.dir=\/var\/i2p/g' ${I2P_DIR}/i2psnark.config && \
+    printf "i2psnark.filesPublic=true\n" >> ${I2P_DIR}/i2psnark.config && \
+    printf "i2psnark.autoStart=true\n" >> ${I2P_DIR}/i2psnark.config
 
 VOLUME /var/lib/i2p
 USER i2psvc
