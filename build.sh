@@ -26,7 +26,7 @@ sed=$(command -v sed)
 if [[ "$sed" == "" ]]
 then
   echo sed is not available
-  echo cannot generate random port number
+  echo cannot change random port number
   exit
 fi
 
