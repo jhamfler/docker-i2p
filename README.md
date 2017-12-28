@@ -1,5 +1,5 @@
 # docker-i2p
-This is a docker image for the I2P-router. It is intended to run on a server with sufficient bandwidth (>=90Mbit/s) though it might only use about 10Mbit/s on average depending on your hardware.
+This is a docker image for the I2P-router. It is intended to run on a server with sufficient bandwidth (>=50Mbit/s) though it might only use about 10Mbit/s on average depending on your hardware.
 
 ## build and run
 Run './build.sh' and then './run.sh'.
